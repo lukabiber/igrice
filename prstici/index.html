@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Igrice">
+<meta name="apple-mobile-web-app-title" content="Brunoli">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
@@ -607,7 +607,7 @@ legend{padding:0;margin:0 auto 10px;font:800 12px/1 var(--font-body);letter-spac
 
   /* ---------- start / exit ---------- */
   const start = $('#start'), home = $('#home');
-  const saved = store.get('prstici-lang');
+  const saved = store.get('brunoli-lang') || store.get('prstici-lang');
   if (saved && LANG_LABEL[saved]) { lang = saved; $('#lang-' + saved).checked = true; }
 
   let wake = null;
@@ -619,7 +619,7 @@ legend{padding:0;margin:0 auto 10px;font:800 12px/1 var(--font-body);letter-spac
 
   $('#go').addEventListener('click', () => {
     lang = (document.querySelector('input[name="lang"]:checked') || {}).value || 'both';
-    store.set('prstici-lang', lang);
+    store.set('brunoli-lang', lang);
     $('#mode').textContent = LANG_LABEL[lang];
     playing = true;
     start.hidden = true;

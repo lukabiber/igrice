@@ -3,10 +3,12 @@
    the cached copy is used when there is no connection (or it takes over 4 seconds).
    Icons, manifest and fonts: cache first.
    When you change an icon, bump CACHE so phones fetch the new one. */
-const CACHE = 'igrice-v1';
+const CACHE = 'brunoli-v2';
 const CORE = [
   './',
   'prstici/',
+  'boje/',
+  'icons/boje.svg',
   'manifest.webmanifest',
   'icons/icon.svg',
   'icons/apple-touch-icon.png',

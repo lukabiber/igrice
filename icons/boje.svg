@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Tile picture for Boje: three balloons on a sky blue square. Same balloon as the game. -->
+  <rect width="512" height="512" fill="#8ED1FC"/>
+  <g stroke="#23284F" stroke-linejoin="round">
+    <g transform="translate(18 132) rotate(-10 80 125) scale(1.15)">
+      <path d="M80 178 C68 200 94 220 78 248" fill="none" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="80" cy="88" rx="66" ry="80" fill="#E8262E" stroke-width="4"/>
+      <path d="M70 180 L90 180 L80 166 Z" fill="#E8262E" stroke-width="4"/>
+      <ellipse cx="54" cy="56" rx="12" ry="22" transform="rotate(-24 54 56)" fill="#FFFFFF" opacity=".45" stroke="none"/>
+    </g>
+    <g transform="translate(310 140) rotate(10 80 125) scale(1.15)">
+      <path d="M80 178 C68 200 94 220 78 248" fill="none" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="80" cy="88" rx="66" ry="80" fill="#8E4FE0" stroke-width="4"/>
+      <path d="M70 180 L90 180 L80 166 Z" fill="#8E4FE0" stroke-width="4"/>
+      <ellipse cx="54" cy="56" rx="12" ry="22" transform="rotate(-24 54 56)" fill="#FFFFFF" opacity=".45" stroke="none"/>
+    </g>
+    <g transform="translate(160 56) scale(1.2)">
+      <path d="M80 178 C68 200 94 220 78 248" fill="none" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="80" cy="88" rx="66" ry="80" fill="#FFD21F" stroke-width="4"/>
+      <path d="M70 180 L90 180 L80 166 Z" fill="#FFD21F" stroke-width="4"/>
+      <ellipse cx="54" cy="56" rx="12" ry="22" transform="rotate(-24 54 56)" fill="#FFFFFF" opacity=".45" stroke="none"/>
+    </g>
+  </g>
+</svg>
