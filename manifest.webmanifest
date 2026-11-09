@@ -1,0 +1,16 @@
+{
+  "name": "Igrice",
+  "short_name": "Igrice",
+  "description": "Little games for little hands, in English and Croatian.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F4F6FC",
+  "theme_color": "#F4F6FC",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

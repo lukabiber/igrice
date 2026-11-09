@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- App icon: a cartoon hand showing five, rising from the bottom edge. Same drawing as the game. -->
+  <rect width="512" height="512" fill="#FFCE4A"/>
+  <g transform="translate(82.7 60.8) scale(1.6)">
+    <g fill="#B46D46" stroke="#B46D46" stroke-width="8" stroke-linejoin="round">
+      <rect transform="rotate(6 137.5 160)" x="123" y="44" width="29" height="126" rx="14.5"/>
+      <rect transform="rotate(1 105 160)" x="90" y="26" width="30" height="144" rx="15"/>
+      <rect transform="rotate(-3 71.5 160)" x="57" y="42" width="29" height="128" rx="14.5"/>
+      <rect transform="rotate(-9 39 160)" x="26" y="74" width="26" height="96" rx="13"/>
+      <rect x="22" y="110" width="136" height="124" rx="50"/>
+    </g>
+    <g fill="#F8CCA6">
+      <rect transform="rotate(6 137.5 160)" x="123" y="44" width="29" height="126" rx="14.5"/>
+      <rect transform="rotate(1 105 160)" x="90" y="26" width="30" height="144" rx="15"/>
+      <rect transform="rotate(-3 71.5 160)" x="57" y="42" width="29" height="128" rx="14.5"/>
+      <rect transform="rotate(-9 39 160)" x="26" y="74" width="26" height="96" rx="13"/>
+      <rect x="22" y="110" width="136" height="124" rx="50"/>
+    </g>
+    <path d="M60 192 Q88 206 116 192" fill="none" stroke="#B46D46" stroke-width="3" stroke-linecap="round" opacity=".3"/>
+    <rect transform="translate(148 196) rotate(36)" x="-16" y="-84" width="32" height="98" rx="16" fill="#F8CCA6" stroke="#B46D46" stroke-width="4"/>
+    <rect x="30" y="204" width="120" height="140" rx="18" fill="#3A47A8" stroke="#262F78" stroke-width="4"/>
+    <rect x="32" y="224" width="116" height="9" fill="#FFD166"/>
+  </g>
+</svg>

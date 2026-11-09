@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Prstići 1–10</title>
+<meta name="description" content="Count to ten on your fingers, in English and Croatian.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#F4F6FC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15182F" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Igrice">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;800&display=swap">
+<style>
+/* Layout: one full-screen stage. Sticker numeral on top, the spoken word(s) under it,
+   two cartoon hands that raise one finger per tap, ten colour dots along the bottom.
+   Tap anywhere = next number. Parent controls live on the start card and a hold-to-exit button. */
+:root{
+  --paper:#F4F6FC;
+  --ink:#23284F;
+  --ink-soft:#5A6192;
+  --card:#FFFFFF;
+  --line:#D9DEF0;
+  --skin:#F8CCA6;
+  --skin-line:#B46D46;
+  --sleeve:#3A47A8;
+  --sleeve-line:#262F78;
+  --stripe:#FFD166;
+  --sticker:#FFFFFF;
+  --badge-ink:#FFFFFF;
+  --go:#E5484D;
+  --on-go:#FFFFFF;
+  --ok:#2E9E5B;
+  --warn:#D98A00;
+  --tint:16%;
+  --num:#9AA3C7;
+  --font-display:"Baloo 2","Arial Rounded MT Bold",ui-rounded,system-ui,sans-serif;
+  --font-body:"Nunito",ui-rounded,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#15182F; --ink:#F2F1FF; --ink-soft:#A7ABD8; --card:#20244A; --line:#343A6A;
+    --skin:#F1C19A; --skin-line:#7F4729; --sleeve:#6B78E5; --sleeve-line:#3B46A8; --stripe:#FFD166;
+    --sticker:#15182F; --ok:#4CC27E; --warn:#F2B13C; --tint:26%;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#15182F; --ink:#F2F1FF; --ink-soft:#A7ABD8; --card:#20244A; --line:#343A6A;
+  --skin:#F1C19A; --skin-line:#7F4729; --sleeve:#6B78E5; --sleeve-line:#3B46A8; --stripe:#FFD166;
+  --sticker:#15182F; --ok:#4CC27E; --warn:#F2B13C; --tint:26%;
+  color-scheme:dark;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%}
+body{
+  height:100%;margin:0;overflow:hidden;
+  background:var(--paper);
+  background:color-mix(in srgb,var(--num) var(--tint),var(--paper));
+  color:var(--ink);font-family:var(--font-body);
+  transition:background-color .6s ease;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;overscroll-behavior:none;
+}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- game stage ---------- */
+.app{
+  height:100%;display:grid;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:auto minmax(0,1fr) auto auto auto;
+  grid-template-areas:"top" "num" "words" "hands" "dots";
+  align-items:center;justify-items:center;row-gap:6px;
+  padding-top:calc(6px + env(safe-area-inset-top,0px));
+  padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  cursor:pointer;
+}
+.top{grid-area:top;width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.home{position:relative;width:48px;height:48px;padding:0;border:0;border-radius:50%;background:var(--card);box-shadow:0 3px 0 var(--line);cursor:pointer;touch-action:none}
+.home svg{display:block;width:100%;height:100%}
+.home .ring-bg{fill:none;stroke:var(--line);stroke-width:3}
+.home .ring{fill:none;stroke:var(--ink);stroke-width:3.5;stroke-linecap:round;stroke-dasharray:132;stroke-dashoffset:132;transform:rotate(-90deg);transform-origin:24px 24px;transition:stroke-dashoffset .15s ease}
+.home.holding .ring{stroke-dashoffset:0;transition:stroke-dashoffset .9s linear}
+.home .house{fill:var(--ink-soft)}
+.mode{font:800 12px/1 var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);background:var(--card);padding:9px 12px;border-radius:999px}
+
+.num{grid-area:num;position:relative;width:100%;height:100%;display:grid;place-items:center}
+.numeral{
+  font-family:var(--font-display);font-weight:800;
+  font-size:clamp(104px,min(34vh,66vw),320px);line-height:.85;
+  color:var(--num);
+  -webkit-text-stroke:.075em var(--sticker);paint-order:stroke fill;
+  text-shadow:0 .05em 0 color-mix(in srgb,var(--num) 32%,transparent);
+  transition:opacity .35s ease,transform .35s ease;
+}
+.numeral.pop{animation:pop .5s cubic-bezier(.3,1.5,.5,1)}
+@keyframes pop{0%{transform:scale(.5)}100%{transform:scale(1)}}
+.tapme{position:absolute;inset:0;display:none;place-items:center;pointer-events:none}
+.num.empty .tapme{display:grid}
+.tapme i{grid-area:1/1;width:min(32vh,62vw);aspect-ratio:1;border-radius:50%;border:7px solid var(--c);opacity:0;animation:ping 2.4s ease-out infinite}
+.tapme i:nth-child(1){--c:#F2545B}
+.tapme i:nth-child(2){--c:#EFB000;animation-delay:.8s}
+.tapme i:nth-child(3){--c:#3B86EE;animation-delay:1.6s}
+.tapme b{grid-area:1/1;width:min(9vh,16vw);aspect-ratio:1;border-radius:50%;background:#F2545B;border:6px solid var(--sticker);animation:bob 1.2s ease-in-out infinite alternate}
+@keyframes ping{0%{transform:scale(.2);opacity:.9}100%{transform:scale(1);opacity:0}}
+@keyframes bob{to{transform:scale(1.15)}}
+
+.words{grid-area:words;display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:4px 28px;min-height:clamp(44px,8vh,76px);text-align:center}
+.word{display:flex;flex-direction:column;align-items:center;gap:3px;transition:transform .25s cubic-bezier(.3,1.5,.5,1)}
+.word small{font:800 11px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+.word b{font:800 clamp(32px,6.4vh,58px)/1 var(--font-display);color:var(--ink);transition:color .2s}
+.word.on{transform:scale(1.14)}
+.word.on b{color:var(--num);-webkit-text-stroke:.07em var(--sticker);paint-order:stroke fill}
+.hint{font:800 clamp(28px,5.6vh,48px)/1 var(--font-display);color:var(--ink-soft)}
+
+.hands{grid-area:hands;width:100%;max-width:560px;min-height:0;display:flex;justify-content:center;align-items:flex-end;padding-top:8px}
+.hand{display:block;flex:1 1 0;min-width:0;height:auto;aspect-ratio:236/268;max-height:40vh;transform-origin:50% 100%;transition:opacity .4s ease,transform .5s cubic-bezier(.3,1.4,.5,1),filter .4s ease}
+.hand.idle{opacity:.4;transform:scale(.9);filter:saturate(.35)}
+.hand.wave{animation:wave .55s ease-in-out 3}
+@keyframes wave{0%,100%{transform:rotate(0)}25%{transform:rotate(-7deg)}75%{transform:rotate(7deg)}}
+
+.hs .o{fill:var(--skin-line);stroke:var(--skin-line);stroke-width:8;stroke-linejoin:round}
+.hs .s{fill:var(--skin)}
+.hs .t{fill:var(--skin);stroke:var(--skin-line);stroke-width:4}
+.hs .crease{fill:none;stroke:var(--skin-line);stroke-width:3;stroke-linecap:round;opacity:.3}
+.hs .sleeve{fill:var(--sleeve);stroke:var(--sleeve-line);stroke-width:4}
+.hs .stripe{fill:var(--stripe)}
+.hs .bd{stroke:var(--sticker);stroke-width:3}
+.hs .bt{fill:var(--badge-ink);font-family:var(--font-display);font-weight:800;font-size:18px;text-anchor:middle;dominant-baseline:central}
+
+.dots{grid-area:dots;display:flex;gap:clamp(6px,2.2vw,12px);padding-top:4px}
+.dot{width:clamp(14px,3.8vw,22px);aspect-ratio:1;border-radius:50%;border:3px solid color-mix(in srgb,var(--c) 50%,var(--paper));transition:background-color .3s ease,transform .35s cubic-bezier(.3,1.5,.5,1)}
+.dot.on{background:var(--c);border-color:var(--c)}
+.dot.cur{transform:scale(1.35)}
+
+.app.party .numeral{opacity:.15;transform:scale(.85)}
+
+@media (orientation:landscape) and (max-height:600px){
+  .app{
+    grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);
+    grid-template-rows:auto minmax(0,1fr) auto auto;
+    grid-template-areas:"top top" "num hands" "words hands" "dots dots";
+  }
+  .numeral{font-size:clamp(80px,min(44vh,24vw),240px)}
+  .hands{max-width:none;height:100%;padding-top:0}
+  .hand{height:100%;max-height:none;aspect-ratio:auto}
+}
+
+/* ---------- celebration ---------- */
+.bravo{position:fixed;inset:0;z-index:10;display:flex;justify-content:center;align-items:flex-start;padding-top:calc(22vh + env(safe-area-inset-top,0px));pointer-events:none;opacity:0}
+.bravo.show{animation:bravo 2.8s ease forwards}
+@keyframes bravo{0%,80%{opacity:1}100%{opacity:0}}
+.bravo span{display:inline-block;font:800 clamp(72px,24vw,170px)/1 var(--font-display);color:var(--c);-webkit-text-stroke:.08em var(--sticker);paint-order:stroke fill;animation:hop .7s cubic-bezier(.3,1.6,.5,1) both;animation-delay:calc(var(--i) * 70ms)}
+@keyframes hop{0%{transform:translateY(40px) scale(.2) rotate(-12deg)}100%{transform:none}}
+.confetti{position:fixed;inset:0;width:100%;height:100%;z-index:9;pointer-events:none}
+.ripple{position:fixed;left:0;top:0;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;border:5px solid var(--num);pointer-events:none;z-index:8;animation:ripple .55s ease-out forwards}
+@keyframes ripple{from{transform:scale(.2);opacity:.9}to{transform:scale(1);opacity:0}}
+
+/* ---------- start card (for the grown-up) ---------- */
+.start{
+  position:fixed;inset:0;z-index:30;overflow-y:auto;background:var(--paper);
+  display:flex;flex-direction:column;cursor:auto;
+  padding:calc(20px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+}
+.card{margin:auto;width:min(100%,420px);display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center}
+.back{align-self:flex-start;display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:8px 16px 8px 8px;border-radius:999px;background:var(--card);border:2px solid var(--line);font:800 15px/1 var(--font-body);color:var(--ink);text-decoration:none;transition:transform .2s cubic-bezier(.22,1,.36,1)}
+.back svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.back:active{transform:translateY(1px)}
+.demo{display:block;height:150px;width:auto;aspect-ratio:236/268;transform-origin:50% 100%;animation:wave 1.8s ease-in-out infinite}
+.brand{display:flex;flex-direction:column;align-items:center;gap:6px}
+.brand h1{margin:0;font:800 clamp(60px,17vw,88px)/.9 var(--font-display);letter-spacing:-.01em}
+.brand h1 span{color:var(--c);-webkit-text-stroke:.07em var(--sticker);paint-order:stroke fill}
+.brand p{margin:0;font:600 17px/1.35 var(--font-body);color:var(--ink-soft);text-wrap:balance}
+.brand p b{font-weight:800;color:var(--ink)}
+fieldset{border:0;margin:0;padding:0;min-width:0;width:100%;display:flex;flex-direction:column;gap:10px}
+legend{padding:0;margin:0 auto 10px;font:800 12px/1 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.seg label{position:relative;display:block}
+.seg input{position:absolute;inset:0;margin:0;opacity:0}
+.seg span{display:flex;align-items:center;justify-content:center;min-height:56px;padding:6px 8px;border-radius:18px;background:var(--card);border:2px solid var(--line);font:800 15px/1.15 var(--font-body);color:var(--ink);cursor:pointer;transition:background-color .15s,border-color .15s,color .15s}
+.seg input:checked + span{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.seg input:focus-visible + span{outline:3px solid var(--go);outline-offset:2px}
+.go{width:100%;min-height:66px;border:0;border-radius:999px;background:var(--go);color:var(--on-go);font:800 28px/1 var(--font-display);box-shadow:0 5px 0 color-mix(in srgb,var(--go) 60%,#000);cursor:pointer;transition:transform .08s ease,box-shadow .08s ease}
+.go:active{transform:translateY(3px);box-shadow:0 2px 0 color-mix(in srgb,var(--go) 60%,#000)}
+.voices{list-style:none;margin:0;padding:0;width:100%;display:flex;flex-direction:column;gap:8px;text-align:left}
+.voices li{display:grid;grid-template-columns:12px minmax(0,1fr);gap:10px;align-items:baseline;font:600 14px/1.4 var(--font-body);color:var(--ink-soft)}
+.voices li::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--ok);transform:translateY(1px)}
+.voices li.warn::before{background:var(--warn)}
+.voices li b{color:var(--ink);font-weight:800}
+.tips{margin:0;font:600 14px/1.45 var(--font-body);color:var(--ink-soft);max-width:38ch;text-wrap:pretty}
+
+@media (prefers-reduced-motion:reduce){
+  .demo,.hand.wave,.numeral.pop,.tapme i,.tapme b,.bravo span{animation:none!important}
+  .tapme i{opacity:.5}
+  .tapme i:nth-child(n+2){display:none}
+}
+</style>
+</head>
+<body>
+
+<main class="app" id="app" aria-label="Counting game">
+  <div class="top">
+    <button class="home" id="home" type="button" aria-label="Hold to go back to the start screen">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle class="ring-bg" cx="24" cy="24" r="21"/><circle class="ring" cx="24" cy="24" r="21"/><path class="house" d="M14 24 24 15l10 9v9.5a1.5 1.5 0 0 1-1.5 1.5H28v-7h-8v7h-4.5a1.5 1.5 0 0 1-1.5-1.5z"/></svg>
+    </button>
+    <span class="mode" id="mode">English + Hrvatski</span>
+  </div>
+  <div class="num empty" id="num">
+    <span class="numeral" id="numeral"></span>
+    <span class="tapme" aria-hidden="true"><i></i><i></i><i></i><b></b></span>
+  </div>
+  <div class="words" id="words"></div>
+  <div class="hands">
+    <svg class="hand hs" id="h1" viewBox="-8 -16 236 268" preserveAspectRatio="xMaxYMax meet" aria-hidden="true"></svg>
+    <svg class="hand hs idle" id="h2" viewBox="-8 -16 236 268" preserveAspectRatio="xMinYMax meet" aria-hidden="true"></svg>
+  </div>
+  <div class="dots" id="dots" aria-hidden="true"></div>
+  <p class="sr" id="live" aria-live="polite"></p>
+</main>
+<div class="bravo" id="bravo" aria-hidden="true"></div>
+<canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
+
+<section class="start" id="start" aria-labelledby="title">
+  <a class="back" href="../"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>All games · Sve igre</a>
+  <div class="card">
+    <svg class="demo hs" id="demo" viewBox="-8 -16 236 268" aria-hidden="true"></svg>
+    <div class="brand">
+      <h1 id="title"></h1>
+      <p><b>Count to ten on your fingers.</b><br>Brojimo do deset na prste.</p>
+    </div>
+    <fieldset>
+      <legend>Language · Jezik</legend>
+      <div class="seg">
+        <label><input type="radio" name="lang" id="lang-en" value="en"><span>English</span></label>
+        <label><input type="radio" name="lang" id="lang-hr" value="hr"><span>Hrvatski</span></label>
+        <label><input type="radio" name="lang" id="lang-both" value="both" checked><span>Both · Oboje</span></label>
+      </div>
+    </fieldset>
+    <button class="go" id="go" type="button">Start · Kreni</button>
+    <ul class="voices" id="voices"></ul>
+    <p class="tips">Tap anywhere on the screen to count up. Hold the house button for a second to come back here. No sound? Turn the volume up and check the silent switch.</p>
+  </div>
+</section>
+
+<script>
+(() => {
+  'use strict';
+  const $ = (s) => document.querySelector(s);
+
+  const NUMS = [
+    { c: '#9AA3C7' },
+    { en: 'one',   hr: 'jedan',  c: '#F2545B' },
+    { en: 'two',   hr: 'dva',    c: '#F7893B' },
+    { en: 'three', hr: 'tri',    c: '#EFB000' },
+    { en: 'four',  hr: 'četiri', c: '#46B45E' },
+    { en: 'five',  hr: 'pet',    c: '#14AA9E' },
+    { en: 'six',   hr: 'šest',   c: '#3B86EE' },
+    { en: 'seven', hr: 'sedam',  c: '#7C5BF0' },
+    { en: 'eight', hr: 'osam',   c: '#EC5AA3' },
+    { en: 'nine',  hr: 'devet',  c: '#A0673F' },
+    { en: 'ten',   hr: 'deset',  c: '#E8364F' },
+  ];
+  const TEN = ['#F2545B', '#3B86EE'];
+  const LANG_LABEL = { en: 'English', hr: 'Hrvatski', both: 'English + Hrvatski' };
+  const HINT = { en: 'Tap!', hr: 'Dodirni!', both: 'Tap! · Dodirni!' };
+  const GREET = { en: "Let's count!", hr: 'Brojimo!' };
+  const CHEER = { en: 'Great job!', hr: 'Bravo!' };
+
+  const reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const synth = 'speechSynthesis' in window ? window.speechSynthesis : null;
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+  };
+
+  /* ---------- hands ----------
+     Drawn with the thumb on the right; the second hand is a mirror image,
+     so the thumbs meet in the middle like a grown-up showing ten fingers.
+     Counting goes thumb, index, middle, ring, pinky. */
+  const BASE = 160;
+  const FINGERS = [ // index, middle, ring, pinky
+    { x: 123, w: 29, top: 44, tilt: 6,  down: 56 },
+    { x: 90,  w: 30, top: 26, tilt: 1,  down: 72 },
+    { x: 57,  w: 29, top: 42, tilt: -3, down: 58 },
+    { x: 26,  w: 26, top: 74, tilt: -9, down: 48 },
+  ];
+  const TH = { x: 148, y: 196, up: 36, down: -74 };
+  const PALM = 'x="22" y="110" width="136" height="124" rx="50"';
+  const SPRING = 260, DAMP = 17;
+  const popOf = (x) => Math.max(0, Math.min(1.25, (x - 0.6) / 0.4));
+
+  function makeHand(svg, base, mirror) {
+    const flip = mirror ? ' scale(-1 1)' : '';
+    const piv = (f) => `${f.x + f.w / 2} ${BASE}`;
+    const rect = (f, cls) => `<rect class="${cls}" x="${f.x}" y="${f.top}" width="${f.w}" height="${BASE + 10 - f.top}" rx="${f.w / 2}"/>`;
+    const layer = (cls) => FINGERS.map((f, i) =>
+      `<g transform="rotate(${f.tilt} ${piv(f)})"><g data-slide="${i + 1}">${rect(f, cls)}</g></g>`).join('');
+    const badge = (n) => `<circle class="bd" r="14" fill="${NUMS[n].c}"/><text class="bt" y="1">${n}</text>`;
+    const badges = FINGERS.map((f, i) =>
+      `<g transform="rotate(${f.tilt} ${piv(f)})"><g data-slide="${i + 1}"><g transform="translate(${f.x + f.w / 2} ${f.top - 21})"><g data-pop="${i + 1}"><g transform="rotate(${-f.tilt})${flip}">${badge(base + i + 2)}</g></g></g></g></g>`).join('');
+
+    svg.innerHTML =
+      `<g${mirror ? ' transform="translate(220 0) scale(-1 1)"' : ''}>` +
+        `<g>${layer('o')}<rect class="o" ${PALM}/></g>` +
+        `<g>${layer('s')}</g><rect class="s" ${PALM}/>` +
+        `<path class="crease" d="M60 192 Q88 206 116 192"/>` +
+        `<g transform="translate(${TH.x} ${TH.y})">` +
+          `<g data-thumb><rect class="t" x="-16" y="-84" width="32" height="98" rx="16"/></g>` +
+          `<g data-tbadge>${badge(base + 1)}</g>` +
+        `</g>` +
+        `<rect class="sleeve" x="30" y="204" width="120" height="80" rx="18"/>` +
+        `<rect class="stripe" x="32" y="224" width="116" height="9"/>` +
+        badges +
+      `</g>`;
+
+    const slides = [null], pops = [null];
+    for (let k = 1; k < 5; k++) {
+      slides.push([...svg.querySelectorAll(`[data-slide="${k}"]`)]);
+      pops.push(svg.querySelector(`[data-pop="${k}"]`));
+    }
+    const thumb = svg.querySelector('[data-thumb]');
+    const tbadge = svg.querySelector('[data-tbadge]');
+    const p = [0, 0, 0, 0, 0], v = [0, 0, 0, 0, 0], t = [0, 0, 0, 0, 0];
+
+    function render() {
+      for (let k = 1; k < 5; k++) {
+        const dy = (FINGERS[k - 1].down * (1 - p[k])).toFixed(2);
+        for (const el of slides[k]) el.setAttribute('transform', `translate(0 ${dy})`);
+        pops[k].setAttribute('transform', `scale(${popOf(p[k]).toFixed(3)})`);
+      }
+      const a = TH.down + (TH.up - TH.down) * p[0];
+      const sy = 0.9 + 0.1 * Math.max(0, Math.min(1, p[0]));
+      thumb.setAttribute('transform', `rotate(${a.toFixed(2)}) scale(1 ${sy.toFixed(3)})`);
+      tbadge.setAttribute('transform',
+        `rotate(${a.toFixed(2)}) translate(0 -106) scale(${popOf(p[0]).toFixed(3)}) rotate(${(-a).toFixed(2)})${flip}`);
+    }
+    function step(dt) {
+      let moving = false;
+      for (let k = 0; k < 5; k++) {
+        const acc = SPRING * (t[k] - p[k]) - DAMP * v[k];
+        v[k] += acc * dt;
+        p[k] = Math.max(-0.3, Math.min(1.3, p[k] + v[k] * dt));
+        if (Math.abs(t[k] - p[k]) < 0.0015 && Math.abs(v[k]) < 0.002) { p[k] = t[k]; v[k] = 0; }
+        else moving = true;
+      }
+      return moving;
+    }
+    function set(k, on) { t[k] = on ? 1 : 0; if (reduce) { p[k] = t[k]; v[k] = 0; } }
+    function snap() { for (let k = 0; k < 5; k++) { p[k] = t[k]; v[k] = 0; } render(); }
+    render();
+    return { svg, set, step, render, snap };
+  }
+
+  const hands = [makeHand($('#h1'), 0, false), makeHand($('#h2'), 5, true)];
+  const demo = makeHand($('#demo'), 0, false);
+  for (let k = 0; k < 5; k++) demo.set(k, true);
+  demo.snap();
+
+  let raf = 0, last = 0;
+  function kick() {
+    if (reduce) { hands.forEach((h) => h.render()); return; }
+    if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
+  }
+  function tick(now) {
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    let moving = false;
+    for (const h of hands) {
+      let rest = dt;
+      while (rest > 1e-6) { const d = Math.min(rest, 1 / 120); if (h.step(d)) moving = true; rest -= d; }
+      h.render();
+    }
+    raf = moving ? requestAnimationFrame(tick) : 0;
+  }
+
+  /* ---------- voices ---------- */
+  const voices = { en: null, hr: null };
+  const NOVELTY = /albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox|fred|junior|ralph|kathy|grandma|grandpa|eddy|flo|reed|rocko|sandy|shelley/i;
+  const GOOD = {
+    en: /samantha|ava|allison|susan|karen|serena|moira|tessa|kate|daniel|martha|zoe|aria|jenny|emma|google us english/i,
+    hr: /lana|gabrijela|srecko|matej|google/i,
+  };
+  function bestVoice(code) {
+    if (!synth) return null;
+    const list = synth.getVoices().filter((v) => (v.lang || '').toLowerCase().replace('_', '-').startsWith(code));
+    if (!list.length) return null;
+    const score = (v) =>
+      (NOVELTY.test(v.name) ? -20 : 0) +
+      (/premium|enhanced|natural/i.test(v.name) ? 4 : 0) +
+      (GOOD[code].test(v.name) ? 3 : 0) +
+      (code === 'en' && /en[-_](us|gb)/i.test(v.lang) ? 2 : 0) +
+      (v.localService ? 1 : 0);
+    return list.slice().sort((a, b) => score(b) - score(a))[0];
+  }
+  function shortName(v) { return v.name.split(' - ')[0].replace(/^Microsoft\s+/, ''); }
+  function loadVoices() {
+    voices.en = bestVoice('en');
+    voices.hr = bestVoice('hr');
+    const ul = $('#voices');
+    ul.textContent = '';
+    const row = (ok, label, text) => {
+      const li = document.createElement('li');
+      if (!ok) li.className = 'warn';
+      const span = document.createElement('span');
+      const b = document.createElement('b');
+      b.textContent = label;
+      span.append(b, ' ' + text);
+      li.append(span);
+      ul.append(li);
+    };
+    if (!synth) {
+      row(false, 'No voice here.', 'This browser cannot speak. On iPhone, open the page in Safari.');
+      return;
+    }
+    row(!!voices.en, 'English voice:', voices.en ? shortName(voices.en) : 'not found on this device.');
+    row(!!voices.hr, 'Croatian voice:', voices.hr ? shortName(voices.hr)
+      : 'not found yet. On iPhone add it in Settings → Accessibility → Spoken Content → Voices → Croatian.');
+  }
+  if (synth) {
+    if ('onvoiceschanged' in synth) synth.addEventListener('voiceschanged', loadVoices);
+    setTimeout(loadVoices, 300);
+    setTimeout(loadVoices, 1500);
+  }
+  loadVoices();
+
+  /* ---------- speech ---------- */
+  let busy = false, busyTimer = 0, sayId = 0, queue = [];
+  function mark(key) {
+    for (const w of $('#words').querySelectorAll('.word')) w.classList.toggle('on', w.dataset.k === key);
+  }
+  function say(parts, onDone, lock) {
+    const id = ++sayId;
+    clearTimeout(busyTimer);
+    const finish = () => {
+      if (id !== sayId) return;
+      clearTimeout(busyTimer);
+      busy = false;
+      mark(null);
+      sayId++;
+      if (onDone) onDone();
+    };
+    busy = !!lock;
+    busyTimer = setTimeout(finish, synth ? 1300 * parts.length + 300 : 700);
+    if (!synth) return;
+    const go = () => {
+      if (id !== sayId) return;
+      queue = parts.map((part, i) => {
+        const u = new SpeechSynthesisUtterance(part.text);
+        const v = voices[part.lang];
+        if (v) u.voice = v;
+        u.lang = v ? v.lang : (part.lang === 'hr' ? 'hr-HR' : 'en-US');
+        u.rate = 0.85;
+        u.pitch = 1.1;
+        u.onstart = () => { if (id === sayId) mark(part.lang); };
+        if (i === parts.length - 1) { u.onend = finish; u.onerror = finish; }
+        return u;
+      });
+      queue.forEach((u) => synth.speak(u));
+    };
+    if (synth.speaking || synth.pending) { synth.cancel(); setTimeout(go, 60); } else go();
+  }
+
+  /* ---------- game ---------- */
+  const app = $('#app'), numEl = $('#num'), numeral = $('#numeral'), words = $('#words');
+  const bravo = $('#bravo'), live = $('#live'), root = document.documentElement;
+  let lang = 'both', count = 0, playing = false, partyTimer = 0;
+  const langs = () => (lang === 'both' ? ['en', 'hr'] : [lang]);
+
+  const dotsEl = $('#dots');
+  for (let i = 1; i <= 10; i++) {
+    const d = document.createElement('span');
+    d.className = 'dot';
+    d.style.setProperty('--c', NUMS[i].c);
+    dotsEl.append(d);
+  }
+  const dots = [...dotsEl.children];
+
+  $('#title').innerHTML = [...'Prstići'].map((ch, i) =>
+    `<span style="--c:${NUMS[[1, 3, 6, 4, 8, 2, 7][i]].c}">${ch}</span>`).join('');
+
+  function show(n) {
+    count = n;
+    const it = NUMS[n];
+    root.style.setProperty('--num', it.c);
+    numEl.classList.toggle('empty', !n);
+    numeral.innerHTML = !n ? '' : n === 10
+      ? `<span style="color:${TEN[0]}">1</span><span style="color:${TEN[1]}">0</span>`
+      : String(n);
+    if (n && !reduce) { numeral.classList.remove('pop'); void numeral.offsetWidth; numeral.classList.add('pop'); }
+    words.innerHTML = n
+      ? langs().map((l) => `<span class="word" data-k="${l}">${lang === 'both' ? `<small>${LANG_LABEL[l]}</small>` : ''}<b>${it[l]}</b></span>`).join('')
+      : `<span class="hint">${HINT[lang]}</span>`;
+    dots.forEach((d, i) => { d.classList.toggle('on', i < n); d.classList.toggle('cur', i === n - 1); });
+    for (let k = 0; k < 5; k++) { hands[0].set(k, k + 1 <= n); hands[1].set(k, k + 6 <= n); }
+    hands[1].svg.classList.toggle('idle', n <= 5);
+    kick();
+    live.textContent = n ? `${n}: ${langs().map((l) => it[l]).join(', ')}` : '';
+  }
+
+  function advance() {
+    if (!playing || busy) return;
+    clearTimeout(partyTimer);
+    app.classList.remove('party');
+    bravo.classList.remove('show');
+    const n = count >= 10 ? 1 : count + 1;
+    show(n);
+    say(langs().map((l) => ({ text: NUMS[n][l], lang: l })), n === 10 ? celebrate : null, true);
+  }
+
+  function celebrate() {
+    if (!playing) return;
+    app.classList.add('party');
+    bravo.innerHTML = [...'Bravo!'].map((ch, i) =>
+      `<span style="--c:${NUMS[[1, 3, 6, 8, 4, 2][i]].c};--i:${i}">${ch}</span>`).join('');
+    bravo.classList.remove('show'); void bravo.offsetWidth; bravo.classList.add('show');
+    if (!reduce) {
+      for (const h of hands) { h.svg.classList.remove('wave'); void h.svg.getBoundingClientRect(); h.svg.classList.add('wave'); }
+    }
+    burst();
+    partyTimer = setTimeout(() => app.classList.remove('party'), 2800);
+    say(langs().map((l) => ({ text: CHEER[l], lang: l })), null, true);
+  }
+  for (const h of hands) h.svg.addEventListener('animationend', () => h.svg.classList.remove('wave'));
+
+  /* ---------- confetti ---------- */
+  const cv = $('#confetti'), cx = cv.getContext('2d');
+  let bits = [], craf = 0, clast = 0;
+  function sizeCanvas() {
+    const dpr = Math.min(3, window.devicePixelRatio || 1);
+    cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function burst() {
+    if (reduce) return;
+    sizeCanvas();
+    const W = innerWidth, H = innerHeight;
+    for (let i = 0; i < 150; i++) {
+      bits.push({
+        x: W * (0.15 + 0.7 * Math.random()), y: H * 0.7,
+        vx: (Math.random() - 0.5) * 9, vy: -(8 + Math.random() * 10),
+        s: 5 + Math.random() * 6, c: NUMS[1 + (i % 10)].c,
+        r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.3, round: i % 3 === 0,
+      });
+    }
+    if (!craf) { clast = performance.now(); craf = requestAnimationFrame(drawBits); }
+  }
+  function drawBits(now) {
+    const f = Math.min(3, (now - clast) / 16.67);
+    clast = now;
+    const H = innerHeight;
+    cx.clearRect(0, 0, innerWidth, H);
+    bits = bits.filter((b) => b.y < H + 30);
+    for (const b of bits) {
+      b.vy += 0.32 * f; b.vx *= Math.pow(0.99, f);
+      b.x += b.vx * f; b.y += b.vy * f; b.r += b.vr * f;
+      cx.save(); cx.translate(b.x, b.y); cx.rotate(b.r); cx.fillStyle = b.c;
+      if (b.round) { cx.beginPath(); cx.arc(0, 0, b.s * 0.6, 0, Math.PI * 2); cx.fill(); }
+      else cx.fillRect(-b.s / 2, -b.s / 4, b.s, b.s / 2);
+      cx.restore();
+    }
+    craf = bits.length ? requestAnimationFrame(drawBits) : 0;
+    if (!craf) cx.clearRect(0, 0, innerWidth, H);
+  }
+
+  /* ---------- taps ---------- */
+  function ripple(x, y) {
+    if (reduce) return;
+    const r = document.createElement('span');
+    r.className = 'ripple';
+    r.style.left = x + 'px'; r.style.top = y + 'px';
+    r.addEventListener('animationend', () => r.remove());
+    document.body.append(r);
+  }
+  app.addEventListener('pointerup', (e) => {
+    if (e.target.closest('.home')) return;
+    ripple(e.clientX, e.clientY);
+    advance();
+  });
+  app.addEventListener('contextmenu', (e) => e.preventDefault());
+  document.addEventListener('gesturestart', (e) => e.preventDefault());
+  document.addEventListener('keydown', (e) => {
+    if (!playing || e.target.closest('.home')) return;
+    if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight') { e.preventDefault(); advance(); }
+  });
+
+  /* ---------- start / exit ---------- */
+  const start = $('#start'), home = $('#home');
+  const saved = store.get('prstici-lang');
+  if (saved && LANG_LABEL[saved]) { lang = saved; $('#lang-' + saved).checked = true; }
+
+  let wake = null;
+  async function keepAwake() {
+    try { if ('wakeLock' in navigator && document.visibilityState === 'visible') wake = await navigator.wakeLock.request('screen'); }
+    catch (e) { wake = null; }
+  }
+  document.addEventListener('visibilitychange', () => { if (playing && document.visibilityState === 'visible') keepAwake(); });
+
+  $('#go').addEventListener('click', () => {
+    lang = (document.querySelector('input[name="lang"]:checked') || {}).value || 'both';
+    store.set('prstici-lang', lang);
+    $('#mode').textContent = LANG_LABEL[lang];
+    playing = true;
+    start.hidden = true;
+    show(0);
+    say(langs().map((l) => ({ text: GREET[l], lang: l })), null, false);
+    keepAwake();
+  });
+
+  let holdTimer = 0;
+  function exitToStart() {
+    clearTimeout(holdTimer);
+    home.classList.remove('holding');
+    playing = false;
+    if (synth) synth.cancel();
+    sayId++; busy = false;
+    clearTimeout(partyTimer);
+    app.classList.remove('party');
+    bravo.classList.remove('show');
+    show(0);
+    start.hidden = false;
+    try { if (wake) wake.release(); } catch (e) {}
+    wake = null;
+  }
+  home.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    home.classList.add('holding');
+    clearTimeout(holdTimer);
+    holdTimer = setTimeout(exitToStart, 900);
+  });
+  for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) {
+    home.addEventListener(ev, () => { clearTimeout(holdTimer); home.classList.remove('holding'); });
+  }
+  home.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); exitToStart(); } });
+
+  show(0);
+
+  if ('serviceWorker' in navigator) {
+    addEventListener('load', () => navigator.serviceWorker.register('../sw.js').catch(() => {}));
+  }
+})();
+</script>
+</body>
+</html>

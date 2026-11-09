@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Igrice</title>
+<meta name="description" content="Little games for little hands, in English and Croatian.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#F4F6FC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15182F" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Igrice">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;800&display=swap">
+<style>
+/* The list of games. A grown-up opens a game from here; each game has its own start card. */
+:root{
+  --paper:#F4F6FC;
+  --ink:#23284F;
+  --ink-soft:#5A6192;
+  --card:#FFFFFF;
+  --line:#D9DEF0;
+  --sticker:#FFFFFF;
+  --font-display:"Baloo 2","Arial Rounded MT Bold",ui-rounded,system-ui,sans-serif;
+  --font-body:"Nunito",ui-rounded,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#15182F; --ink:#F2F1FF; --ink-soft:#A7ABD8; --card:#20244A; --line:#343A6A; --sticker:#15182F;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#15182F; --ink:#F2F1FF; --ink-soft:#A7ABD8; --card:#20244A; --line:#343A6A; --sticker:#15182F;
+  color-scheme:dark;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{min-height:100%;background:var(--paper)}
+body{
+  margin:0;min-height:100%;background:var(--paper);color:var(--ink);font-family:var(--font-body);
+  -webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;
+}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+
+.wrap{
+  width:min(100%,560px);margin:0 auto;display:flex;flex-direction:column;gap:32px;
+  padding:calc(32px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(32px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+}
+
+header{display:flex;flex-direction:column;gap:8px}
+h1{margin:0;font:800 72px/1 var(--font-display);letter-spacing:-.01em}
+h1 span{color:var(--c);-webkit-text-stroke:.07em var(--sticker);paint-order:stroke fill}
+header p{margin:0;font:600 18px/28px var(--font-body);color:var(--ink-soft);text-wrap:balance}
+header p b{font-weight:800;color:var(--ink)}
+
+.games{list-style:none;margin:0;padding:0;display:grid;gap:16px}
+.tile{
+  display:grid;grid-template-columns:96px minmax(0,1fr) 24px;align-items:center;gap:16px;
+  padding:8px 16px 8px 8px;border-radius:32px;background:var(--card);border:2px solid var(--line);
+  box-shadow:0 4px 0 var(--line);color:inherit;text-decoration:none;
+  transition:transform .3s var(--ease),box-shadow .3s var(--ease);
+}
+.tile:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.tile img{display:block;width:96px;height:96px;border-radius:24px}
+.tile b{display:block;font:800 30px/36px var(--font-display)}
+.tile small{display:block;font:600 16px/24px var(--font-body);color:var(--ink-soft);text-wrap:pretty}
+.tile svg{width:24px;height:24px;fill:none;stroke:var(--ink-soft);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+
+.note{
+  display:flex;flex-direction:column;gap:12px;padding:24px;border-radius:24px;
+  background:var(--card);border:2px solid var(--line);
+}
+.note h2{margin:0;font:800 24px/32px var(--font-display);text-wrap:balance}
+.note ol,.note p{margin:0;font:600 16px/24px var(--font-body);color:var(--ink-soft);text-wrap:pretty}
+.note ol{padding-left:24px;display:flex;flex-direction:column;gap:8px}
+.note b{font-weight:800;color:var(--ink)}
+[hidden]{display:none!important}
+
+@media (hover:hover){
+  .tile:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--line)}
+}
+@media (prefers-reduced-motion:reduce){
+  .tile{transition:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="title" aria-label="Igrice"></h1>
+    <p><b>Little games for little hands.</b><br>Male igre za male ruke.</p>
+  </header>
+
+  <main>
+    <ul class="games" aria-label="Games">
+      <li>
+        <a class="tile" href="prstici/">
+          <img src="icons/icon.svg" alt="" width="96" height="96">
+          <span><b>Prstići</b><small>Count to ten · Brojimo do deset</small></span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        </a>
+      </li>
+    </ul>
+  </main>
+
+  <section class="note" id="install" aria-labelledby="install-title" hidden>
+    <h2 id="install-title">Put it on the Home Screen</h2>
+    <ol>
+      <li>Open this page in <b>Safari</b> and tap <b>Share</b>. On newer iPhones it sits inside the <b>···</b> menu.</li>
+      <li>Choose <b>Add to Home Screen</b>, then <b>Add</b>.</li>
+      <li>Open <b>Igrice</b> from the new icon. It fills the whole screen and keeps working without internet.</li>
+    </ol>
+  </section>
+
+  <section class="note" aria-labelledby="lock-title">
+    <h2 id="lock-title">Keep little fingers in the game</h2>
+    <p>Turn on <b>Guided Access</b> in Settings → Accessibility. Then, inside a game, press the side button three times and tap <b>Start</b>. Press it three times again to get out.</p>
+  </section>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const COLORS = ['#F2545B', '#EFB000', '#3B86EE', '#46B45E', '#EC5AA3', '#F7893B'];
+  document.getElementById('title').innerHTML = [...'Igrice']
+    .map((ch, i) => `<span aria-hidden="true" style="--c:${COLORS[i]}">${ch}</span>`).join('');
+
+  const standalone = navigator.standalone === true ||
+    (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
+  document.getElementById('install').hidden = standalone;
+
+  if ('serviceWorker' in navigator) {
+    addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  }
+})();
+</script>
+</body>
+</html>
