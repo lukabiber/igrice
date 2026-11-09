@@ -278,6 +278,11 @@ legend{padding:0;margin:0 auto 10px;font:800 12px/1 var(--font-body);letter-spac
   const HINT = { en: 'Tap!', hr: 'Dodirni!', both: 'Tap! · Dodirni!' };
   const GREET = { en: "Let's count!", hr: 'Brojimo!' };
   const CHEER = { en: 'Great job!', hr: 'Bravo!' };
+  // How the Croatian should sound. A Croatian voice reads HR_SAY. Without one, the English
+  // voice reads the phonetic spellings in HR_SOUND, so it still sounds right.
+  const HR_SAY   = ['', 'jedan', 'dva', 'tri', 'četri',  'pet', 'šest',  'sedam', 'osam', 'devet', 'deset'];
+  const HR_SOUND = ['', 'Yedan', 'Dva', 'Tri', 'Chetri', 'Pet', 'Shest', 'Sedam', 'Osam', 'Devet', 'Deset'];
+  const GREET_SOUND = 'Broyimo!';
 
   const reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
   const synth = 'speechSynthesis' in window ? window.speechSynthesis : null;
@@ -427,7 +432,7 @@ legend{padding:0;margin:0 auto 10px;font:800 12px/1 var(--font-body);letter-spac
     }
     row(!!voices.en, 'English voice:', voices.en ? shortName(voices.en) : 'not found on this device.');
     row(!!voices.hr, 'Croatian voice:', voices.hr ? shortName(voices.hr)
-      : 'not found yet. On iPhone add it in Settings → Accessibility → Spoken Content → Voices → Croatian.');
+      : 'not found, so the English voice reads the Croatian words. For a real Croatian accent, add Lana in Settings → Accessibility → Spoken Content → Voices → Croatian.');
   }
   if (synth) {
     if ('onvoiceschanged' in synth) synth.addEventListener('voiceschanged', loadVoices);
@@ -458,8 +463,10 @@ legend{padding:0;margin:0 auto 10px;font:800 12px/1 var(--font-body);letter-spac
     const go = () => {
       if (id !== sayId) return;
       queue = parts.map((part, i) => {
-        const u = new SpeechSynthesisUtterance(part.text);
-        const v = voices[part.lang];
+        // No Croatian voice on the phone: the English voice reads the phonetic spelling.
+        const fallback = part.lang === 'hr' && !voices.hr && !!voices.en;
+        const u = new SpeechSynthesisUtterance(fallback ? part.sound || part.text : part.text);
+        const v = fallback ? voices.en : voices[part.lang];
         if (v) u.voice = v;
         u.lang = v ? v.lang : (part.lang === 'hr' ? 'hr-HR' : 'en-US');
         u.rate = 0.85;
@@ -517,7 +524,9 @@ legend{padding:0;margin:0 auto 10px;font:800 12px/1 var(--font-body);letter-spac
     bravo.classList.remove('show');
     const n = count >= 10 ? 1 : count + 1;
     show(n);
-    say(langs().map((l) => ({ text: NUMS[n][l], lang: l })), n === 10 ? celebrate : null, true);
+    say(langs().map((l) => (l === 'hr'
+      ? { text: HR_SAY[n], sound: HR_SOUND[n], lang: l }
+      : { text: NUMS[n][l], lang: l })), n === 10 ? celebrate : null, true);
   }
 
   function celebrate() {
@@ -615,7 +624,7 @@ legend{padding:0;margin:0 auto 10px;font:800 12px/1 var(--font-body);letter-spac
     playing = true;
     start.hidden = true;
     show(0);
-    say(langs().map((l) => ({ text: GREET[l], lang: l })), null, false);
+    say(langs().map((l) => ({ text: GREET[l], sound: GREET_SOUND, lang: l })), null, false);
     keepAwake();
   });
 
